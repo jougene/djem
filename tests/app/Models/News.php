@@ -14,4 +14,9 @@ class News extends Model
     {
         return $this->belongsToMany(Image::class);
     }
+
+    public function document()
+    {
+        return $this->belongsToMany(Image::class);
+    }
 }

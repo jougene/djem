@@ -1,3 +1,4 @@
+.x-form-crosslink-images-wrap,
 .x-form-crosslink-files-wrap {
     border: none;
     margin: 1px;
@@ -6,6 +7,15 @@
     a {
         text-decoration: none;
     }
+
+    &::before {
+        position:absolute;
+        font-family: Icons;
+        color: white;
+        text-shadow: 0px 0px 6px black;
+        padding: 0;
+        line-height: 1em;
+    };
 
     &.height-scale {
         .thumb-wrap {
@@ -89,4 +99,49 @@
             overflow: hidden;
         }
     }
+}
+
+.x-form-crosslink-files-wrap {
+    .file {
+        font-size: 1.3em;
+        padding-left: 40px;
+        line-height: 2em;
+        &::before {
+            content: '\0f214';
+            position:absolute;
+            font-family: Icons;
+            color: white;
+            text-shadow: 0px 0px 6px black;
+            font-size: 3em;
+            padding: 0;
+            line-height: 1em;
+            left: 0;
+        }
+        &.pdf::before {
+            content: '\0f225';
+        }
+        &.word::before {
+            content: '\0f22c';
+        }
+        &.excel::before {
+            content: '\0f21b';
+        }
+        &.ppt::before {
+            content: '\0f227';
+        }
+    }
+}
+
+.x-form-crosslink-files-wrap::before {
+    content: '\0f219';
+    top: 10px;
+    right: 10px;
+    font-size: 2em;
+}
+
+.x-form-crosslink-images-wrap::before {
+    content: '\0f100';
+    top: 50%;
+    right: 50%;
+    font-size: 100px;
 }

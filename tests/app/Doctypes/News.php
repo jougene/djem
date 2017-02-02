@@ -39,8 +39,9 @@ class News extends \DJEM\Doctype
                 $items->addText('name')->label('Name')->validate('required|max:255');
                 $items->addTag('tagsList')->label('Field Tags')->filterPickList(true)->store(['one', 'two', 'three']);
                 $items->addRichText('text')->label('Text')->flex(1);
+                $items->addFile('document')->height('40px')->flex(1);
             });
-            $items->addImages('images')->height('100%')->width('20%')->save($this->uploadImage());
+            $items->addImage('images')->height('100%')->width('20%')->save($this->uploadImage());
         });
 
         return $editor;

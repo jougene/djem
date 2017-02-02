@@ -11,8 +11,7 @@ Ext.define('djem.view.crosslink.Files', {
 
   listeners: {
     afterrender: { fn: 'initAfterRender', options: { single: true } },
-    beforedestroy: 'onBeforeDestroy',
-    itemdblclick: 'onItemDblClick'
+    beforedestroy: 'onBeforeDestroy'
   },
 
   controller: 'crosslink-files',
@@ -46,12 +45,24 @@ Ext.define('djem.view.crosslink.Files', {
     this.callParent(arguments);
   },
 
+  fileType: {
+    'application/pdf'     : 'pdf',
+    'application/msword'  : 'word'
+  },
+
   overItemCls: 'x-grid-item-over',
   itemSelector: 'div.thumb-wrap',
   tpl: [
-    '<tpl for=".">', '<div class="thumb-wrap {new}">', '<a href="#" class="trash">&#xF156;</a>',
-    '<div class="thumb" style="background-repeat: no-repeat;',
-    'background-image: url({url});background-position:{calcOffset};background-size:100%;background-size:{calcZoom}">',
-    '</div>', '<span>{name}</span>', '</div>', '</tpl>'
+    '<tpl for=".">', 
+      '<div class="thumb-wrap {new}">',
+        '<a href="#" class="trash">&#xF156;</a>',
+        '<div class="file {type}">{name}</div>',
+      '</div>',
+    '</tpl>'
   ]
+  // tpl: [
+  //   '<tpl for=".">', '<div class="thumb-wrap {new}">', '<a href="#" class="trash">&#xF156;</a>',
+  //   '<div class="thumb" style="">',
+  //   '</div>', '<span>{name}</span>', '</div>', '</tpl>'
+  // ]
 });

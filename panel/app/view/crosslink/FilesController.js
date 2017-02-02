@@ -92,6 +92,16 @@ Ext.define('djem.view.crosslink.FilesController', {
     uploadNext(0);
   },
 
+  fileType: function (mimeType) {
+    return {
+      'application/pdf' : 'pdf',
+      'application/msword' : 'word',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'word',
+      'application/vnd.ms-excel' : 'excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'excel'
+    }[mimeType]
+  },
+
   dropFiles: function(e) {
     var me = this;
     var view = me.getView();
@@ -101,10 +111,10 @@ Ext.define('djem.view.crosslink.FilesController', {
       if (view.single) {
         store.removeAll();
       }
+
       Ext.each(e.dataTransfer.files, function(file) {
         file = me.uploader.lock(file);
-
-        store.add({ 'url': file.url, 'file': file.file, 'name': file.name, 'height': 64, 'new': 'new', 'offset': [] });
+        store.add({ 'url': file.url, 'file': file.file, 'name': file.name, 'type': me.fileType(file.file.type), 'height': 64, 'new': 'new', 'offset': [] });
         return !view.single;
       });
     }
@@ -148,23 +158,11 @@ Ext.define('djem.view.crosslink.FilesController', {
     me.getView().emptyText =
       '' +
       '<label>' +
-      '<svg style="position:absolute;cursor:pointer;" fill="#EEEEEE" height="100%" viewBox="0 0 24 24" width="100%"' +
-      'xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">' +
-      '<defs>' +
-      '<path d="M24 24H0V0h24v24z" id="a"/>' +
-      '</defs>' +
-      '<clipPath id="b">' +
-      '<use overflow="visible" xlink:href="#a"/>' +
-      '</clipPath>' +
-      '<path clip-path="url(#b)" d="M3 4V1h2v3h3v2H5v3H3V6H0V4h3zm3 6V7h3V4h7l1.83 2H21c1.1 0 2 .9 2 ' +
-      '2v12c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V10h3zm7 9c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 ' +
-      '5zm-3.2-5c0 1.77 1.43 3.2 3.2 3.2s3.2-1.43 3.2-3.2-1.43-3.2-3.2-3.2-3.2 1.43-3.2 3.2z"/>' +
-      '</svg>' +
-
-      '<input style="visibility:hidden;" type="file" ' + (me.getView().single ? '' : ' multiple="" ') +
-      ' onchange="Ext.get(this.parentNode.parentNode).fireEvent(\'filechange\', event, this);">' +
+        '<div style="cursor:pointer; height: 100%; width: 100%;">' + 
+        '</div>' +
+          '<input style="visibility:hidden;" type="file" ' + (me.getView().single ? '' : ' multiple="" ') +
+          ' onchange="Ext.get(this.parentNode.parentNode).fireEvent(\'filechange\', event, this); ">' +
       '</label>';
-
     this.callParent(arguments);
   },
 
@@ -257,29 +255,7 @@ Ext.define('djem.view.crosslink.FilesController', {
       }
     });
     if (view.single) {
-      view.on('resize', function() { me.recalcImageZoom(); });
-      view.on('show', function() { me.recalcImageZoom(); });
-      el.on('mousedown', function(evt) {
-        if (view.getStore().getCount() == 1) {
-          var body = Ext.get(document.body), iframe = Ext.select('iframe'), rec = view.getStore().getAt(0);
-          var offset = rec.get('offset') || { x: 0, y: 0 }, zoom = me.getImageZoom();
-
-          body.addCls('x-unselectable');
-          iframe.setStyle('pointer-events', 'none');
-
-          me.setImageMoveOffset({ x: evt.event.screenX + offset.x * zoom, y: evt.event.screenY + offset.y * zoom });
-
-          var mousemove = function(evt) { return me.onMouseMove(evt); };
-          var detach = function() {
-            body.removeCls('x-unselectable');
-            iframe.setStyle('pointer-events', null);
-            window.removeEventListener('mouseup', detach, true);
-            window.removeEventListener('mousemove', mousemove, true);
-          };
-          window.addEventListener('mousemove', mousemove, true);
-          window.addEventListener('mouseup', detach, true);
-        }
-      });
+      
     }
   },
 
@@ -335,36 +311,6 @@ Ext.define('djem.view.crosslink.FilesController', {
       return true;
     }
     return false;
-  },
-
-  applyImage: function(href) {
-    var me = this, view = me.getView(), image = new Image();
-
-    if (!href) {
-      return;
-    }
-
-    var prevImage = me.getImage();
-    if (prevImage) {
-      prevImage.onload = null;
-    }
-
-    image['data-href'] = href;
-
-    me.setImageZoom(1);
-    view.setStyle('cursor', 'wait');
-
-    image.onload = function() {
-      view.setStyle('cursor', 'default');
-      me.recalcImageZoom();
-      me.moveSingleImage({ x: 0, y: 0 });
-    };
-
-    if (href) {
-      image.src = href;
-    }
-
-    return image;
   },
 
   recalcImageZoom: function() {

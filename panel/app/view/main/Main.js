@@ -11,7 +11,7 @@ Ext.define('djem.view.main.Main', {
 
     'widget.image',
 
-    'djem.widget.html', 'djem.widget.image', 'djem.widget.images', 'djem.widget.tag', 'djem.widget.text',
+    'djem.widget.html', 'djem.widget.file', 'djem.widget.image', 'djem.widget.images', 'djem.widget.tag', 'djem.widget.text',
     'djem.widget.textarea', 'djem.widget.checkbox', 'djem.widget.combobox', 'djem.widget.date', 'djem.widget.time',
     'djem.widget.grid.panel', 'djem.widget.searchToolbarField'
   ],
