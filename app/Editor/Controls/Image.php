@@ -18,17 +18,23 @@ class Image extends Control
 
     public function getProperties($model)
     {
-        $dimensions = [];
+        $properties = parent::getProperties($model);
 
         if ($this->bind === true) {
             $related = call_user_func([$model, $this->getProperty('name')])->getRelated();
-            $dimensions = [
+            $properties = array_merge([
                 'height' => $related->height,
                 'width' => $related->width,
-            ];
+                'modelHeight' => $related->height,
+                'modelWidth' => $related->width,
+            ], $properties);
+
+            if ($related->height && $related->width) {
+                $properties = ['items' => [$properties]];
+            }
         }
 
-        return array_merge($dimensions, parent::getProperties($model));
+        return $properties;
     }
 
     public function copyFrom($field)
@@ -107,7 +113,10 @@ class Image extends Control
                     $image->setUserValue($this->prepareUserSaveValue($value, $image->getName(), $getValue));
                 }
 
-                return parent::prepareUserValue($value, $getValue);
+                parent::prepareUserValue($value, $getValue);
+                $this->getUserValue()->save();
+
+                return $this;
             }
             // если файл не указан, значит нужно обновить данные уже подцепленной картинки
             foreach ($this->images as $image) {

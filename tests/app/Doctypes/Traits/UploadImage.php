@@ -6,26 +6,27 @@ trait UploadImage
 {
     public function uploadImage()
     {
-        return function ($fileData, $model, $getter) {
-            $folder = explode('\\', get_class($model));
-            $folder = array_pop($folder);
-
-            $url = '/files/'.$folder;
-            $path = public_path().'/files/'.$folder;
+        $copyToPublic = function ($file) {
+            $url = '/files/';
+            $path = public_path().'/files/';
 
             if (! is_dir($path)) {
                 mkdir($path, 0777, true);
             }
 
-            $path = $path.'/'.basename($fileData['file']);
-            $url = $url.'/'.basename($fileData['file']);
+            $path = $path.basename($file);
+            $url = $url.basename($file);
 
-            copy($fileData['file'], $path);
+            copy($file, $path);
 
+            return [$path, $url];
+        };
+
+        return function ($fileData, $model, $getter) use ($copyToPublic) {
             $model = new $model;
 
-            $model->path = $path;
-            $model->url = $url;
+            $model->name = $fileData['name'];
+            list($model->path, $model->url) = $copyToPublic($fileData['file']);
 
             return $model;
         };

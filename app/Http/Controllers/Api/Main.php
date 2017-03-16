@@ -17,12 +17,23 @@ class Main extends \Illuminate\Routing\Controller
     {
         $id = $request->input('tree');
 
-        return $this->getDoctype($id)->grid($id);
+        $doctype = $this->getDoctype($id);
+        $doctypeObject = DoctypeResolver::createDoctype($doctype);
+        $grid = $doctypeObject->grid($id);
+
+        $data = $grid->getData();
+        $data['metaData']['options'] += [
+            'subtypes' => $doctypeObject->getSubtypes(),
+            '_doctype' => $doctype,
+            'contextMenu' => $doctypeObject->getContextMenu(),
+        ];
+
+        return response()->json($data);
     }
 
     protected function getTree($id = 0)
     {
-        return call_user_func(config('djem.tree'), $id);
+        return config('djem.tree');
     }
 
     protected function findLeaf($id, $tree = null)
@@ -34,8 +45,8 @@ class Main extends \Illuminate\Routing\Controller
             if (isset($leaf['id']) && $leaf['id'] == $id) {
                 return $leaf;
             }
-            if ($key == 'items') {
-                $found = $this->findLeaf($id, $leaf);
+            if (isset($leaf['items'])) {
+                $found = $this->findLeaf($id, $leaf['items']);
                 if ($found) {
                     return $found;
                 }
@@ -57,6 +68,6 @@ class Main extends \Illuminate\Routing\Controller
             throw new BadMethodCallException('Can\'t create class '.$doctype);
         }
 
-        return DoctypeResolver::createDoctype($doctype);
+        return $doctype;
     }
 }

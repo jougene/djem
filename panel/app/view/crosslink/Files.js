@@ -3,11 +3,29 @@ Ext.define('djem.view.crosslink.Files', {
   extend: 'Ext.view.View',
   alias: 'widget.crosslink.Files',
 
+  config: { selectionModel: { mode: 'MULTI' } },
+
   cls: 'x-form-crosslink-files-wrap',
   requires: [
     'djem.view.crosslink.FilesController', 'djem.view.crosslink.FilesModel', 'djem.view.crosslink.FileField',
     'djem.store.CrossLink', 'djem.model.Files', 'djem.view.crosslink.Editor'
   ],
+
+  deleteImages: function(record) {
+    var me = this;
+
+    if (me.getSelection().length) {
+      Ext.each(me.getSelection(), function(selection) { selection.drop(); });
+    } else {
+      me.getStore().remove(record);
+    }
+  },
+
+  moveItemOnFirst: function(record) {
+    var store = this.getStore();
+    store.remove(record);
+    store.insert(0, record);
+  },
 
   listeners: {
     afterrender: { fn: 'initAfterRender', options: { single: true } },
@@ -45,6 +63,7 @@ Ext.define('djem.view.crosslink.Files', {
     this.callParent(arguments);
   },
 
+<<<<<<< HEAD
   fileType: {
     'application/pdf'     : 'pdf',
     'application/msword'  : 'word'
@@ -59,6 +78,19 @@ Ext.define('djem.view.crosslink.Files', {
         '<div class="file {type}">{name}</div>',
       '</div>',
     '</tpl>'
+=======
+  selectedItemCls: 'x-grid-item-selected',
+  itemSelector: 'div.thumb-wrap',
+  tpl: [
+    '<tpl for=".">', '<div class="thumb-wrap {new}">',
+    '<a href="#" class="plus"></a><a href="#" class="minus"></a><a href="#" class="trash">&#xF156;</a>',
+    '<div class="thumb" style="',
+    'background-repeat: no-repeat;background-image: url({url});background-position:{calcOffset};background-size:100%;background-size:{calcZoom}',
+    '"></div>', '<span>{name}</span>', '</div>', '</tpl>', '<label>',
+    '<svg width="100%" height="100%" viewBox="0 0 64 64"><text x="0" y="58" fill="#eee">&#xf100;</text></svg>',
+    '<input type="file" multiple="" onchange="Ext.get(this.parentNode.parentNode).fireEvent(\'filechange\', event, this);">',
+    '</label>'
+>>>>>>> 36720b73078ca0d530148e59e0c582149e2db3ab
   ]
   // tpl: [
   //   '<tpl for=".">', '<div class="thumb-wrap {new}">', '<a href="#" class="trash">&#xF156;</a>',

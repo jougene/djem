@@ -8,11 +8,16 @@ class News extends Model
 {
     public $table = 'news';
 
-    public $fillable = ['name', 'text', 'tagsList'];
+    public $fillable = ['name', 'text', 'tagsList', 'sort'];
+
+    public function smallImage()
+    {
+        return $this->belongsTo(SmallImage::class);
+    }
 
     public function images()
     {
-        return $this->belongsToMany(Image::class);
+        return $this->belongsToMany(Image::class)->orderBy('sort');
     }
 
     public function document()

@@ -2,6 +2,7 @@
 
 namespace DJEM\Editor\Controls;
 
+use Closure;
 use DJEM\Editor;
 use Illuminate\Database\Eloquent\Model;
 
@@ -10,6 +11,7 @@ class Images extends Control
     use Traits\File;
 
     private $images = [];
+    private $preHooks = [];
 
     public function __construct($name = null)
     {
@@ -29,6 +31,14 @@ class Images extends Control
         return $this;
     }
 
+    public function sortable(Closure $callable)
+    {
+        $this->preHooks[] = $callable;
+        $this->setProperty('sortable', true);
+
+        return $this;
+    }
+
     public function loadRelation($model)
     {
         $relation = $this->getRelation($model);
@@ -38,7 +48,6 @@ class Images extends Control
             $relation->with($image);
         }
         $models = $relation->get();
-
         $controls = false;
         if ($this->editor) {
             $this->editor->loadModel($relation->getRelated());
@@ -71,7 +80,12 @@ class Images extends Control
     public function prepareUserValue($values, $getValue = null)
     {
         $data = [];
-        foreach ($values as $value) {
+
+        $values = collect($this->preHooks)->reduce(function ($values, $hook) {
+            return call_user_func($hook, $values);
+        }, $values);
+
+        foreach ($values as $i => $value) {
             $relation = call_user_func($getValue->relation, $this->getName());
 
             if (isset($value['file'])) {
@@ -93,11 +107,9 @@ class Images extends Control
                 $model = $relation->find($value['id']);
             }
 
-            if (! empty($this->images)) {
-                foreach ($value as $key => $var) {
-                    if ($model->isFillable($key)) {
-                        $model->fill([$key => $var]);
-                    }
+            foreach ($value as $key => $var) {
+                if ($model->isFillable($key)) {
+                    $model->fill([$key => $var]);
                 }
             }
 
@@ -116,7 +128,7 @@ class Images extends Control
     private function createImage($value, &$model, $field, $getter)
     {
         $image = null;
-        if (method_exists($model, $field) && is_callable($this->saveHandler)) {
+        if (! $model->isFillable($field) && method_exists($model, $field) && is_callable($this->saveHandler)) {
             $relation = call_user_func([$model, $field]);
 
             $image = $relation->getRelated();

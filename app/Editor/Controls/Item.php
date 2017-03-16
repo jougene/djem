@@ -68,6 +68,13 @@ class Item
         return $value;
     }
 
+    protected function removeProperty($name)
+    {
+        unset($this->properties[$name]);
+
+        return $this;
+    }
+
     public function getProperties($model)
     {
         $model; // unused variable
@@ -75,6 +82,11 @@ class Item
         $properties = [];
         foreach ($this->properties as $key => $value) {
             $properties[$key] = $this->getProperty($key, $model);
+        }
+
+        $bind = $this->getBind();
+        if ($bind) {
+            $properties['bind'] = $bind;
         }
 
         return $properties;
@@ -141,16 +153,18 @@ class Item
 
     public function color($value)
     {
-        $cls = $this->getProperty('cls') ?: '';
-        $this->setProperty('cls', $cls.' color-'.$value);
+        $cls = $this->getProperty('cls') ? [$this->getProperty('cls')] : [];
+        array_push($cls, 'color-'.$value);
+        $this->setProperty('cls', implode(' ', $cls));
 
         return $this;
     }
 
     public function bgcolor($value)
     {
-        $cls = $this->getProperty('cls') ?: '';
-        $this->setProperty('cls', $cls.' bgcolor-'.$value);
+        $cls = $this->getProperty('cls') ? [$this->getProperty('cls')] : [];
+        array_push($cls, 'bgcolor-'.$value);
+        $this->setProperty('cls', implode(' ', $cls));
 
         return $this;
     }

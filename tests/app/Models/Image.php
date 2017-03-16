@@ -8,6 +8,7 @@ class Image extends Model
 {
     public $table = 'images';
 
-    public $fillable = ['url'];
+    public $fillable = ['name', 'sort'];
+    public $guarded = ['url'];
     public $hidden = ['path'];
 }
